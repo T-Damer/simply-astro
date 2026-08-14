@@ -5,91 +5,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Профориентация и самореализация, прогнозирование важных периодов жизни, помощь в переходный период.">
   <title>Простая астрология</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Юлия Трухачева — Простая астрология">
+  <meta property="og:description" content="Астрология и психология для самореализации, отношений и точек роста.">
+  <meta property="og:image" content="assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Юлия Трухачева — астрология и психология">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Юлия Трухачева — Простая астрология">
+  <meta name="twitter:description" content="Астрология и психология для самореализации, отношений и точек роста.">
+  <meta name="twitter:image" content="assets/og-image.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="alternate icon" type="image/png" href="assets/favicon.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="page">
   <main class="page__content">
-    <section class="hero" id="top">
+    <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero__content">
-        <p class="section-label hero__label">Простая астрология <span>·</span> консультации</p>
-        <h1 class="hero__title">Понять себя.<br><em>Выбрать свой путь.</em></h1>
+        <h1 class="hero__title" id="hero-title">Понять себя.<br><em>Выбрать свой путь.</em></h1>
         <p class="hero__description">
           Если вы хотите минимизировать риски, узнать возможности для роста,
           свои сильные стороны, подтянуть слабые, разобраться в отношениях
           с окружающими — начнём с личной консультации.
         </p>
         <div class="hero__actions">
-          <a class="button button--primary" href="#services">Выбрать формат</a>
-          <a class="text-link" href="#about">Познакомиться <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-
-      <div class="hero__media">
-        <div class="hero__image-frame">
-          <img class="hero__image" src="assets/images/IMG_7419.JPG" alt="Консультация и запись наблюдений">
-        </div>
-        <div class="hero__badge" aria-hidden="true">ASTRO<br>PSYCHOLOGY</div>
-        <p class="hero__caption">Астрология наравне с психологией</p>
-      </div>
-
-      <a class="scroll-hint" href="#about" aria-label="Перейти к разделу «Обо мне»">
-        <span class="scroll-hint__icon" aria-hidden="true"></span>
-        <span class="scroll-hint__text">Листать</span>
-      </a>
-    </section>
-
-    <section class="about" id="about">
-      <div class="about__header">
-        <p class="section-label">01 <span>/</span> обо мне</p>
-        <h2 class="about__title">Астрология — это карта, <em>а ты выбираешь путь.</em></h2>
-      </div>
-
-      <div class="about__body">
-        <div class="about__media">
-          <img class="about__image" src="assets/images/IMGL6069.jpg" alt="Юлия Трухачева">
-          <p class="about__caption">Юлия Трухачева<br><span>астролог и психолог</span></p>
-        </div>
-
-        <div class="about__text">
-          <p class="about__lead">Я помогаю разложить по полочкам текущие события, увидеть ресурсы и подготовиться к важному выбору.</p>
-
-          <p>Образование:</p>
-          <p>ВГПУ<br>Московская Академия Астрологии<br>МГЭИ (специальность «Психология»)</p>
-
-          <p>
-            В своей работе я использую астрологию наравне с психологией.
-            Потому что астрология без психологии невозможна. Моя философия —
-            не предсказывать судьбу, а помогать тебе понять себя, свои сильные
-            и слабые стороны, периоды роста и перемен.
-          </p>
-
-          <p><strong><em>Что для меня важно:</em></strong></p>
-          <ul>
-            <li><strong>Индивидуальный подход</strong> — каждый гороскоп, как уникальная история.</li>
-            <li><strong>Эмпатия</strong> — я не даю сухих трактовок, я слушаю.</li>
-            <li><strong>Практичность</strong> — после консультации Вы уходите с ответами и внутренним спокойствием.</li>
-            <li><strong>Психология</strong> — мягко заглянуть внутрь себя и найти ресурсы даже в кризисных периодах.</li>
-          </ul>
-
-          <p><strong><em>Работаю с темами:</em></strong></p>
-          <ul>
-            <li>Профориентация и самореализация</li>
-            <li>Отношения и совместимость</li>
-            <li>Возрастные кризисы и точки личностного роста</li>
-            <li>Соляры, транзиты и прогнозирование важных периодов</li>
-          </ul>
+          <a class="button button--primary" href="#contacts">Записаться</a>
         </div>
       </div>
     </section>
 
-    <section class="services" id="services" aria-labelledby="services-title">
+    <section class="about" id="about" aria-labelledby="about-title">
+      <div class="about__card">
+        <div class="about__header">
+          <p class="section-label">01 <span>/</span> обо мне</p>
+          <h2 class="about__title" id="about-title">Обо мне</h2>
+          <p class="about__subtitle">Астрология — это карта, <em>а ты выбираешь путь.</em></p>
+        </div>
+
+        <div class="about__body">
+          <div class="about__column about__text">
+            <p class="about__lead">Я помогаю разложить по полочкам текущие события, увидеть ресурсы и подготовиться к важному выбору.</p>
+
+            <p><strong><em>Образование:</em></strong></p>
+            <ul class="about__education">
+              <li>ВГПУ</li>
+              <li>Московская Академия Астрологии</li>
+              <li>МГЭИ — специальность «Психология»</li>
+            </ul>
+          </div>
+
+          <div class="about__column about__text">
+            <p>
+              В своей работе я использую астрологию наравне с психологией.
+              Потому что астрология без психологии невозможна. Моя философия —
+              не предсказывать судьбу, а помогать тебе понять себя, свои сильные
+              и слабые стороны, периоды роста и перемен.
+            </p>
+
+            <p><strong><em>Что для меня важно:</em></strong></p>
+            <ul>
+              <li><strong>Индивидуальный подход</strong> — каждый гороскоп, как уникальная история.</li>
+              <li><strong>Эмпатия</strong> — я не даю сухих трактовок, я слушаю.</li>
+              <li><strong>Практичность</strong> — после консультации Вы уходите с ответами и внутренним спокойствием.</li>
+              <li><strong>Психология</strong> — мягко заглянуть внутрь себя и найти ресурсы даже в кризисных периодах.</li>
+            </ul>
+
+            <p><strong><em>Работаю с темами:</em></strong></p>
+            <ul>
+              <li>Профориентация и самореализация</li>
+              <li>Отношения и совместимость</li>
+              <li>Возрастные кризисы и точки личностного роста</li>
+              <li>Соляры, транзиты и прогнозирование важных периодов</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="services" id="services" aria-labelledby="services-label">
       <div class="services__header">
-        <p class="section-label">02 <span>/</span> консультации</p>
-        <h2 class="services__title" id="services-title">Выберите формат работы</h2>
-        <p class="services__hint">Карточки можно листать в сторону</p>
+        <p class="section-label" id="services-label">02 <span>/</span> консультации</p>
+        <div class="services__controls" aria-label="Навигация по форматам">
+          <button class="services__arrow" type="button" data-services-direction="prev" aria-label="Предыдущая карточка" aria-controls="services-track">←</button>
+          <button class="services__arrow" type="button" data-services-direction="next" aria-label="Следующая карточка" aria-controls="services-track">→</button>
+        </div>
       </div>
 
-      <div class="services__track" role="list">
+      <div class="services__track" id="services-track" role="list">
         <article class="service-card" role="listitem">
           <div class="service-card__number">01</div>
           <img class="service-card__image" src="assets/images/IMGL6008.jpg" alt="Анализ карты под запрос">
@@ -166,6 +170,6 @@
       </ul>
     </section>
   </main>
+  <script src="script.js" defer></script>
 </body>
 </html>
-
