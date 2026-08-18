@@ -1,0 +1,4 @@
+DirectoryIndex index.html
+Options -Indexes
+AddType image/webp .webp
+AddType image/svg+xml .svg

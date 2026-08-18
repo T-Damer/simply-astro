@@ -1,0 +1,53 @@
+name: Deploy to Masterhost
+
+on:
+  push:
+    branches:
+      - agent/refresh-site-design
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pack static release
+        run: |
+          tar --exclude='.DS_Store' --exclude='._*' -czf astrotrue-release.tar.gz \
+            index.html styles.css script.js sw.js .htaccess assets cards
+
+      - name: Configure production SSH key
+        env:
+          MASTERHOST_SSH_KEY: ${{ secrets.MASTERHOST_SSH_KEY }}
+          MASTERHOST_KNOWN_HOSTS: ${{ secrets.MASTERHOST_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$RUNNER_TEMP/astrotrue-ssh"
+          printf '%s\n' "$MASTERHOST_SSH_KEY" > "$RUNNER_TEMP/astrotrue-ssh/deploy-key"
+          printf '%s\n' "$MASTERHOST_KNOWN_HOSTS" > "$RUNNER_TEMP/astrotrue-ssh/known_hosts"
+          chmod 600 "$RUNNER_TEMP/astrotrue-ssh/deploy-key" "$RUNNER_TEMP/astrotrue-ssh/known_hosts"
+
+      - name: Deploy production release
+        env:
+          REVISION: ${{ github.sha }}
+        run: |
+          ssh -i "$RUNNER_TEMP/astrotrue-ssh/deploy-key" \
+            -o UserKnownHostsFile="$RUNNER_TEMP/astrotrue-ssh/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            u543238@u543238.ssh.masterhost.ru \
+            'mkdir -p /home/u543238/deploy/astrotrue.ru && chmod 700 /home/u543238/deploy/astrotrue.ru'
+          scp -i "$RUNNER_TEMP/astrotrue-ssh/deploy-key" \
+            -o UserKnownHostsFile="$RUNNER_TEMP/astrotrue-ssh/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            ops/install-release.sh astrotrue-release.tar.gz \
+            u543238@u543238.ssh.masterhost.ru:/home/u543238/deploy/astrotrue.ru/
+          ssh -i "$RUNNER_TEMP/astrotrue-ssh/deploy-key" \
+            -o UserKnownHostsFile="$RUNNER_TEMP/astrotrue-ssh/known_hosts" \
+            -o StrictHostKeyChecking=yes \
+            u543238@u543238.ssh.masterhost.ru \
+            "chmod 700 /home/u543238/deploy/astrotrue.ru/install-release.sh && /home/u543238/deploy/astrotrue.ru/install-release.sh /home/u543238/deploy/astrotrue.ru/astrotrue-release.tar.gz '$REVISION'"
