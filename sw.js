@@ -1,12 +1,16 @@
-const CACHE_NAME = 'astro-julia-shell-v1';
+const CACHE_NAME = 'astro-julia-shell-v2';
 const cardNumbers = Array.from({ length: 78 }, (_, index) => String(index + 1).padStart(2, '0'));
 const precache = [
   './',
   './index.html',
   './styles.css',
   './script.js',
-  './assets/favicon.svg',
+  './assets/favicon-light.png',
+  './assets/favicon-dark.png',
   './assets/favicon.png',
+  './assets/apple-touch-icon.png',
+  './assets/logo-circle-light.png',
+  './assets/logo-circle-dark.png',
   './assets/og-image.png',
   './assets/images/IMGL6008.jpg',
   './assets/images/IMGL5986_.jpg',

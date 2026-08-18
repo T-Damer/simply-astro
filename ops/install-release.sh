@@ -52,7 +52,7 @@ curl --fail --silent --show-error --max-time 20 \
   --resolve "astrotrue.ru:80:${HEALTH_IP}" \
   -o "${HEALTH_BODY}" \
   "http://astrotrue.ru/"
-grep -q 'Простая астрология' "${HEALTH_BODY}"
+grep -q 'AstroTrue' "${HEALTH_BODY}"
 rm -f "${HEALTH_BODY}"
 
 ROLLBACK_READY=0

@@ -53,11 +53,12 @@ body:not(.is-booting) .boot-splash {
   pointer-events: none;
 }
 
-.boot-splash__moon {
-  width: clamp(64px, 11vw, 96px);
+.boot-splash__logo {
+  width: clamp(72px, 12vw, 104px);
   height: auto;
+  border-radius: 50%;
   animation: boot-moon-pulse 1.8s ease-in-out infinite;
-  filter: drop-shadow(0 14px 22px rgba(157, 77, 58, .2));
+  filter: drop-shadow(0 12px 22px rgba(24, 23, 27, .12));
 }
 
 @keyframes boot-moon-pulse {
@@ -114,8 +115,16 @@ a {
   text-align: center;
 }
 
+.hero__logo {
+  display: block;
+  width: clamp(72px, 9vw, 104px);
+  height: auto;
+  margin: 0 auto;
+  border-radius: 50%;
+}
+
 .hero__title {
-  margin: 24px 0 0;
+  margin: 28px 0 0;
   font-family: var(--font-serif);
   font-size: clamp(56px, 8vw, 116px);
   font-weight: 400;
@@ -530,7 +539,17 @@ a {
 }
 
 .site-footer__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
+}
+
+.site-footer__logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .site-footer__name span {
