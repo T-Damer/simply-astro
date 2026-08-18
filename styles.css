@@ -116,7 +116,7 @@ a {
 }
 
 .hero__logo {
-  display: block;
+  display: none;
   width: clamp(72px, 9vw, 104px);
   height: auto;
   margin: 0 auto;
