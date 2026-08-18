@@ -64,13 +64,55 @@ curl -I http://astrotrue.ru/
 
 ## SSL
 
-Пока DNS не указывает на площадку, сертификат выпускать рано. Когда A-записи начнут резолвиться:
+Покупать сертификат не нужно. Используется бесплатный Let's Encrypt на 90 дней для `astrotrue.ru` и `www.astrotrue.ru`, тот же `acme.sh`, что у svnl.pro. Ключ RSA-2048: панель Masterhost не принимает EC `.key`.
 
-1. выложить сайт (хотя бы `index.html` и каталог `.well-known`);
-2. в панели Masterhost: площадка `u543238` → `astrotrue.ru` → поддержка SSL / SNI;
-3. штатный Let's Encrypt Masterhost часто требует их NS — для домена на REG.RU тот же путь, что у svnl.pro: выпуск HTTP-01 и загрузка своего `.crt`/`.key` через SNI.
+Первый выпуск выполнен 18 августа 2026 (до 16 ноября 2026). Установка в панель Masterhost остаётся ручной: API для своего сертификата на виртуальном хостинге нет. Встроенный Let's Encrypt Masterhost требует их NS — зона остаётся на REG.RU.
 
-HTTP → HTTPS и `www` → apex включать в панели только после рабочей проверки HTTPS.
+### 1. Выпустить или продлить
+
+```bash
+ssh u543238@u543238.ssh.masterhost.ru
+/home/u543238/deploy/astrotrue.ru/renew-certificate.sh
+```
+
+Скрипт лежит в репозитории: `ops/renew-certificate.sh`. CI копирует его на площадку вместе с релизом. Продление трогает только `astrotrue.ru`, не svnl.pro. Файлы для загрузки:
+
+- `/home/u543238/deploy/astrotrue.ru/certificate-upload/astrotrue.ru.crt`
+- `/home/u543238/deploy/astrotrue.ru/certificate-upload/astrotrue.ru.key`
+
+Приватный ключ с правами `600`. Не коммитить, не слать в чат.
+
+### 2. Скопировать на компьютер
+
+```bash
+certificate_dir="$(mktemp -d)"
+chmod 700 "${certificate_dir}"
+scp u543238@u543238.ssh.masterhost.ru:/home/u543238/deploy/astrotrue.ru/certificate-upload/astrotrue.ru.crt "${certificate_dir}/"
+scp u543238@u543238.ssh.masterhost.ru:/home/u543238/deploy/astrotrue.ru/certificate-upload/astrotrue.ru.key "${certificate_dir}/"
+chmod 600 "${certificate_dir}"/*
+printf '%s\n' "${certificate_dir}"
+```
+
+### 3. Загрузить в Masterhost
+
+1. «Виртуальный хостинг → Площадка u543238 → astrotrue.ru → Поддержка SSL → Настроить».
+2. «По технологии SNI» и «Загрузить свой сертификат».
+3. «Загрузить .CRT» — `astrotrue.ru.crt`.
+4. «Загрузить .KEY» — `astrotrue.ru.key`. Не вставлять PEM текстом.
+5. «Применить».
+
+### 4. Проверить и включить редиректы
+
+```bash
+curl --fail --head https://astrotrue.ru/
+curl --fail --head https://www.astrotrue.ru/
+```
+
+Только после успешного HTTPS в панели включить `www → astrotrue.ru` и `HTTP → HTTPS`. Потом удалить локальную копию ключа:
+
+```bash
+find "${certificate_dir}" -depth -delete
+```
 
 ## Деплой
 

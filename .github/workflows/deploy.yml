@@ -44,10 +44,10 @@ jobs:
           scp -i "$RUNNER_TEMP/astrotrue-ssh/deploy-key" \
             -o UserKnownHostsFile="$RUNNER_TEMP/astrotrue-ssh/known_hosts" \
             -o StrictHostKeyChecking=yes \
-            ops/install-release.sh astrotrue-release.tar.gz \
+            ops/install-release.sh ops/renew-certificate.sh astrotrue-release.tar.gz \
             u543238@u543238.ssh.masterhost.ru:/home/u543238/deploy/astrotrue.ru/
           ssh -i "$RUNNER_TEMP/astrotrue-ssh/deploy-key" \
             -o UserKnownHostsFile="$RUNNER_TEMP/astrotrue-ssh/known_hosts" \
             -o StrictHostKeyChecking=yes \
             u543238@u543238.ssh.masterhost.ru \
-            "chmod 700 /home/u543238/deploy/astrotrue.ru/install-release.sh && /home/u543238/deploy/astrotrue.ru/install-release.sh /home/u543238/deploy/astrotrue.ru/astrotrue-release.tar.gz '$REVISION'"
+            "chmod 700 /home/u543238/deploy/astrotrue.ru/install-release.sh /home/u543238/deploy/astrotrue.ru/renew-certificate.sh && /home/u543238/deploy/astrotrue.ru/install-release.sh /home/u543238/deploy/astrotrue.ru/astrotrue-release.tar.gz '$REVISION'"
