@@ -1,3 +1,80 @@
+const cardAssetPath = 'cards/assets/img/';
+const cardNumbers = Array.from({ length: 78 }, (_, index) => String(index + 1).padStart(2, '0'));
+const pageReady = prepareServiceWorker().catch(() => undefined);
+
+function waitForWorker(worker) {
+  return new Promise((resolve) => {
+    if (!worker || ['installed', 'activated', 'redundant'].includes(worker.state)) {
+      resolve();
+      return;
+    }
+
+    worker.addEventListener('statechange', () => {
+      if (['installed', 'activated', 'redundant'].includes(worker.state)) resolve();
+    }, { once: true });
+  });
+}
+
+function waitForControllerChange() {
+  if (!navigator.serviceWorker.controller) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const timeout = window.setTimeout(resolve, 5000);
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.clearTimeout(timeout);
+      resolve();
+    }, { once: true });
+  });
+}
+
+async function prepareServiceWorker() {
+  if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+
+  const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+  await registration.update();
+  await waitForWorker(registration.installing);
+
+  if (registration.waiting) {
+    const controllerChange = waitForControllerChange();
+    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    await controllerChange;
+  }
+
+  await Promise.race([
+    navigator.serviceWorker.ready,
+    new Promise((resolve) => window.setTimeout(resolve, 8000))
+  ]);
+}
+
+function preloadCardAssets() {
+  if (!/^https?:$/.test(location.protocol)) return;
+
+  const cardImages = cardNumbers.flatMap((number) => [
+    `${cardAssetPath}Image${number}-low.webp`,
+    `${cardAssetPath}Image${number}.webp`
+  ]);
+  const assets = [
+    `${cardAssetPath}bg-low.webp`,
+    `${cardAssetPath}bg.webp`,
+    `${cardAssetPath}bg2-low.webp`,
+    `${cardAssetPath}bg2.webp`,
+    ...cardImages
+  ];
+
+  assets.forEach((source) => fetch(source, { cache: 'force-cache' }).catch(() => undefined));
+}
+
+window.addEventListener('load', () => {
+  pageReady.finally(() => {
+    const schedule = window.requestIdleCallback
+      ? (callback) => window.requestIdleCallback(callback, { timeout: 1500 })
+      : (callback) => window.setTimeout(callback, 0);
+    schedule(preloadCardAssets);
+  });
+}, { once: true });
+
+pageReady.finally(() => document.body.classList.remove('is-booting'));
+
 const track = document.querySelector('.services__track');
 const arrows = document.querySelectorAll('[data-services-direction]');
 
@@ -40,9 +117,11 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   const cardHistory = cardModal.querySelector('[data-card-history]');
   const cardHistoryCount = cardModal.querySelector('#card-history-count');
   const cardClose = cardModal.querySelector('[data-close-card-modal]');
+  const cardSurface = cardModal.querySelector('.card-modal__surface');
   const storageKey = 'astro-card-selection';
   const historyStorageKey = 'astro-card-history';
   let memoryHistory = [];
+  let modalBackgroundsStarted = false;
   let activeDay = getDayKey();
   let timerId = 0;
   let closeId = 0;
@@ -116,6 +195,39 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     return `${count} ${ending}`;
   }
 
+  function loadImage(source) {
+    return new Promise((resolve) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => resolve(true);
+      image.onerror = () => resolve(false);
+      image.src = source;
+    });
+  }
+
+  function setProgressiveBackground(element, lowSource, highSource) {
+    element.style.backgroundImage = `url("${lowSource}")`;
+    loadImage(highSource).then((loaded) => {
+      if (loaded) element.style.backgroundImage = `url("${highSource}")`;
+    });
+  }
+
+  function prepareModalBackgrounds() {
+    if (modalBackgroundsStarted) return;
+    modalBackgroundsStarted = true;
+
+    if (cardSurface instanceof HTMLElement) {
+      loadImage(`${cardAssetPath}bg2.webp`).then((loaded) => {
+        if (loaded) cardSurface.classList.add('is-art-loaded');
+      });
+    }
+
+    const backs = cardModal.querySelectorAll('.oracle-card__back');
+    loadImage(`${cardAssetPath}bg.webp`).then((loaded) => {
+      if (loaded) backs.forEach((back) => back.classList.add('is-loaded'));
+    });
+  }
+
   function renderHistory(history) {
     if (!(cardHistory instanceof HTMLElement)) return;
     cardHistory.replaceChildren();
@@ -129,7 +241,11 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
 
       const image = document.createElement('div');
       image.className = 'card-history__image';
-      image.style.backgroundImage = `url("cards/assets/img/Image${selection.card}.webp")`;
+      setProgressiveBackground(
+        image,
+        `${cardAssetPath}Image${selection.card}-low.webp`,
+        `${cardAssetPath}Image${selection.card}.webp`
+      );
       image.setAttribute('role', 'img');
       image.setAttribute('aria-label', `Карта от ${formatHistoryDate(selection.date)}`);
 
@@ -149,7 +265,10 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
       button.disabled = false;
       button.setAttribute('aria-label', `Выбрать карту ${index + 1}`);
       const face = button.querySelector('.oracle-card__face');
-      if (face instanceof HTMLElement) face.style.backgroundImage = '';
+      if (face instanceof HTMLElement) {
+        face.style.backgroundImage = '';
+        face.classList.remove('is-loaded');
+      }
     });
   }
 
@@ -165,7 +284,13 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     if (!(selected instanceof HTMLButtonElement)) return;
 
     const face = selected.querySelector('.oracle-card__face');
-    if (face instanceof HTMLElement) face.style.backgroundImage = `url("cards/assets/img/Image${selection.card}.webp")`;
+    if (face instanceof HTMLElement) {
+      setProgressiveBackground(
+        face,
+        `${cardAssetPath}Image${selection.card}-low.webp`,
+        `${cardAssetPath}Image${selection.card}.webp`
+      );
+    }
 
     cardButtons.forEach((button, index) => {
       if (!(button instanceof HTMLButtonElement)) return;
@@ -210,6 +335,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     event.preventDefault();
     window.clearTimeout(closeId);
     activeDay = getDayKey();
+    prepareModalBackgrounds();
     const history = readHistory();
     renderHistory(history);
     renderSelection(history.find((selection) => selection.date === activeDay) || null);

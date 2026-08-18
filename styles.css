@@ -32,6 +32,10 @@ body.is-card-modal-open {
   overflow: hidden;
 }
 
+body.is-booting {
+  visibility: hidden;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -580,9 +584,13 @@ a {
 
 .card-modal__art {
   z-index: -2;
-  background: url("cards/assets/img/bg2.webp") center / cover;
+  background: url("cards/assets/img/bg2-low.webp") center / cover;
   opacity: .2;
   transition: filter .4s ease, opacity .4s ease;
+}
+
+.card-modal__surface.is-art-loaded .card-modal__art {
+  background-image: url("cards/assets/img/bg2.webp");
 }
 
 .card-modal__wash {
@@ -743,7 +751,17 @@ a {
 }
 
 .oracle-card__back {
+  background: url("cards/assets/img/bg-low.webp") center / cover;
+}
+
+.oracle-card__back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: url("cards/assets/img/bg.webp") center / cover;
+  opacity: 0;
+  transition: opacity .35s ease;
 }
 
 .oracle-card__back::after {
@@ -758,6 +776,11 @@ a {
   font-family: var(--font-serif);
   font-size: 24px;
   text-shadow: 0 1px 8px rgba(0, 0, 0, .3);
+  z-index: 1;
+}
+
+.oracle-card__back.is-loaded::before {
+  opacity: 1;
 }
 
 .oracle-card__face {
