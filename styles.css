@@ -32,8 +32,37 @@ body.is-card-modal-open {
   overflow: hidden;
 }
 
-body.is-booting {
+body.is-booting > :not(.boot-splash) {
   visibility: hidden;
+}
+
+.boot-splash {
+  display: grid;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  place-items: center;
+  background: var(--color-paper);
+  opacity: 1;
+  transition: opacity .45s ease, visibility .45s ease;
+}
+
+body:not(.is-booting) .boot-splash {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-splash__moon {
+  width: clamp(64px, 11vw, 96px);
+  height: auto;
+  animation: boot-moon-pulse 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 14px 22px rgba(157, 77, 58, .2));
+}
+
+@keyframes boot-moon-pulse {
+  0%, 100% { transform: scale(.92); opacity: .72; }
+  50% { transform: scale(1); opacity: 1; }
 }
 
 img {
