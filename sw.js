@@ -1,4 +1,4 @@
-const CACHE_NAME = 'astro-julia-shell-v2';
+const CACHE_NAME = 'astro-julia-shell-v4';
 const cardNumbers = Array.from({ length: 78 }, (_, index) => String(index + 1).padStart(2, '0'));
 const precache = [
   './',
@@ -18,6 +18,8 @@ const precache = [
   './assets/images/IMG_7419.JPG',
   './cards/assets/img/bg-low.webp',
   './cards/assets/img/bg2-low.webp',
+  './cards/assets/img/zoom-bg-low.webp',
+  './cards/assets/img/zoom-bg.webp',
   ...cardNumbers.map((number) => `./cards/assets/img/Image${number}-low.webp`)
 ];
 

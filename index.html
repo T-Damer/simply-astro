@@ -194,8 +194,21 @@
       <div class="card-modal__art" aria-hidden="true"></div>
       <div class="card-modal__wash" aria-hidden="true"></div>
 
+      <div class="card-modal__zoom" data-card-zoom hidden aria-hidden="true">
+        <span class="card-modal__zoom-close" aria-hidden="true">×</span>
+        <figure class="card-modal__zoom-figure">
+          <div class="card-modal__zoom-card" data-card-zoom-image role="img"></div>
+          <figcaption class="card-modal__zoom-caption" data-card-zoom-caption></figcaption>
+        </figure>
+      </div>
+
+      <div class="card-modal__loading" data-card-modal-loading hidden role="status" aria-label="Загрузка карты дня">
+        <span class="card-modal__spinner" aria-hidden="true"></span>
+      </div>
+
       <header class="card-modal__header">
         <button class="card-modal__close" type="button" data-close-card-modal aria-label="Закрыть карту дня">×</button>
+        <p class="card-modal__eyebrow">КАРТА ДНЯ <span aria-hidden="true">✦</span></p>
         <div class="card-modal__timer" aria-label="Время до следующего выбора">
           <span>следующий выбор через</span>
           <time id="card-timer">00:00:00</time>
@@ -203,33 +216,31 @@
       </header>
 
       <div class="card-modal__content">
-        <p class="card-modal__eyebrow">КАРТА ДНЯ <span aria-hidden="true">✦</span></p>
         <h2 class="card-modal__title" id="card-modal-title">Выбери то, что откликается.</h2>
-
         <div class="card-deck" data-card-deck role="list" aria-label="Карты для выбора">
           <button class="oracle-card" type="button" role="listitem" data-card-slot="0" aria-label="Выбрать карту 1">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
           <button class="oracle-card" type="button" role="listitem" data-card-slot="1" aria-label="Выбрать карту 2">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
           <button class="oracle-card" type="button" role="listitem" data-card-slot="2" aria-label="Выбрать карту 3">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
           <button class="oracle-card" type="button" role="listitem" data-card-slot="3" aria-label="Выбрать карту 4">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
           <button class="oracle-card" type="button" role="listitem" data-card-slot="4" aria-label="Выбрать карту 5">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
           <button class="oracle-card" type="button" role="listitem" data-card-slot="5" aria-label="Выбрать карту 6">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
           <button class="oracle-card" type="button" role="listitem" data-card-slot="6" aria-label="Выбрать карту 7">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
           <button class="oracle-card" type="button" role="listitem" data-card-slot="7" aria-label="Выбрать карту 8">
-            <span class="oracle-card__inner" aria-hidden="true"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span>
+            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
         </div>
 
