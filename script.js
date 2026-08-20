@@ -154,6 +154,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   const cardLoading = cardModal.querySelector('[data-card-modal-loading]');
   const cardTitle = cardModal.querySelector('.card-modal__title');
   const cardZoom = cardModal.querySelector('[data-card-zoom]');
+  const cardZoomClose = cardModal.querySelector('[data-close-card-zoom]');
   const cardZoomImage = cardModal.querySelector('[data-card-zoom-image]');
   const cardZoomCaption = cardModal.querySelector('[data-card-zoom-caption]');
   const storageKey = 'astro-card-selection';
@@ -266,7 +267,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     const duration = 8100 + Math.random() * 4800;
     const phase = Math.random() * Math.PI * 2;
     const xAmplitude = 5 + Math.random() * 7;
-    const yAmplitude = 12 + Math.random() * 9;
+    const yAmplitude = (12 + Math.random() * 9) * .8;
     const yPhase = (Math.random() - .5) * .2;
     const rotationAmplitude = (1.4 + Math.random() * 1.8) * (Math.random() > .5 ? 1 : -1);
     const scaleAmplitude = .025 + Math.random() * .025;
@@ -340,11 +341,18 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   async function openCardZoom(selection, sourceElement) {
     if (!(cardZoom instanceof HTMLElement) || !(cardZoomImage instanceof HTMLElement) || !(cardZoomCaption instanceof HTMLElement)) return;
 
+    const pendingSource = sourceElement instanceof HTMLElement ? sourceElement : null;
+    if (pendingSource) pendingSource.classList.add('is-zoom-source-hidden');
+    stopCardFloat();
+
     const lowSource = `${cardAssetPath}Image${selection.card}-low.webp`;
     const highSource = `${cardAssetPath}Image${selection.card}.webp`;
     cardZoomImage.style.backgroundImage = `url("${lowSource}")`;
     if (await loadImage(highSource)) cardZoomImage.style.backgroundImage = `url("${highSource}")`;
-    if (!cardModal.open) return;
+    if (!cardModal.open) {
+      if (pendingSource) pendingSource.classList.remove('is-zoom-source-hidden');
+      return;
+    }
 
     const sourceRect = sourceElement instanceof HTMLElement ? sourceElement.getBoundingClientRect() : null;
     const transitionName = 'card-day-zoom';
@@ -356,6 +364,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     }
     zoomSourceElement = sourceElement instanceof HTMLElement ? sourceElement : null;
     if (zoomSourceElement && useViewTransition) zoomSourceElement.style.viewTransitionName = transitionName;
+    if (zoomSourceElement && useViewTransition) zoomSourceElement.classList.add('is-zoom-source-hidden');
 
     cardModal.classList.remove('is-zoom-open');
     cardZoom.classList.remove('is-open');
@@ -406,6 +415,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
 
   function closeCardZoom() {
     if (!(cardZoom instanceof HTMLElement)) return;
+    const wasZoomOpen = !cardZoom.hidden;
     const sourceElement = zoomSourceElement;
     const useViewTransition = sourceElement instanceof HTMLElement && typeof document.startViewTransition === 'function';
     const transitionName = 'card-day-zoom-out';
@@ -414,7 +424,11 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
       if (sourceElement instanceof HTMLElement) sourceElement.classList.remove('is-zoom-source-hidden');
       if (!keepSourceName && sourceElement instanceof HTMLElement) sourceElement.style.removeProperty('view-transition-name');
       if (cardZoomImage instanceof HTMLElement) cardZoomImage.style.removeProperty('view-transition-name');
-      if (!keepSourceName) zoomSourceElement = null;
+      if (!keepSourceName) {
+        zoomSourceElement = null;
+        const selectedCard = cardButtons.find((button) => button.classList.contains('is-selected'));
+        if (wasZoomOpen && selectedCard instanceof HTMLButtonElement) startCardFloat(selectedCard);
+      }
       cardModal.classList.remove('is-zoom-open');
       cardZoom.classList.remove('is-open');
       cardZoom.classList.remove('is-view-transition');
@@ -609,6 +623,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
 
   cardOpeners.forEach((opener) => opener.addEventListener('click', openCardModal));
   if (cardClose instanceof HTMLButtonElement) cardClose.addEventListener('click', closeCardModal);
+  if (cardZoomClose instanceof HTMLButtonElement) cardZoomClose.addEventListener('click', closeCardZoom);
   cardModal.addEventListener('cancel', (event) => {
     if (cardZoom instanceof HTMLElement && !cardZoom.hidden) {
       event.preventDefault();

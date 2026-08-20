@@ -688,7 +688,7 @@ a {
   display: grid;
   z-index: 50;
   place-items: center;
-  background-color: #070811;
+  background-color: transparent;
   backdrop-filter: blur(12px) saturate(.7);
   cursor: zoom-out;
   opacity: 0;
@@ -706,11 +706,10 @@ a {
 .card-modal__zoom::before {
   z-index: 0;
   background: var(--zoom-bg-image) center / cover no-repeat;
-  opacity: .74;
+  opacity: .7;
+  backdrop-filter: blur(4px);
   filter: saturate(1.12) contrast(1.06);
   transform: scale(1.06);
-  animation: card-zoom-bg-drift 18s ease-in-out infinite alternate;
-  will-change: transform;
 }
 
 .card-modal__zoom::after {
@@ -721,7 +720,6 @@ a {
     radial-gradient(circle at 83% 18%, rgba(255, 244, 212, .68) 0 .7px, transparent 2.2px),
     radial-gradient(circle at 22% 79%, rgba(211, 220, 255, .7) 0 .6px, transparent 2.2px);
   opacity: .2;
-  animation: card-zoom-star-shimmer 6.5s ease-in-out infinite;
 }
 
 .card-modal__zoom.is-open {
@@ -748,6 +746,7 @@ a {
   background: rgba(7, 8, 17, .34);
   box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
   font: 30px/.8 var(--font-sans);
+  padding: 0;
   cursor: pointer;
   pointer-events: auto;
   transition: transform .25s ease, background-color .25s ease, border-color .25s ease;
@@ -780,6 +779,7 @@ a {
   border-radius: 10px;
   background: center / cover no-repeat;
   box-shadow: 0 24px 44px rgba(0, 0, 0, .46);
+  cursor: default;
   opacity: 0;
   pointer-events: auto;
   backface-visibility: hidden;
@@ -1209,18 +1209,6 @@ a {
 
 @keyframes card-spinner {
   to { transform: rotate(360deg); }
-}
-
-@keyframes card-zoom-bg-drift {
-  from { transform: scale(1.06) translate3d(-1.1%, .7%, 0); }
-  to { transform: scale(1.12) translate3d(1.1%, -.9%, 0); }
-}
-
-@keyframes card-zoom-star-shimmer {
-  0%, 100% { opacity: .14; filter: brightness(.9); }
-  32% { opacity: .48; filter: brightness(1.32); }
-  62% { opacity: .18; filter: brightness(.96); }
-  84% { opacity: .38; filter: brightness(1.2); }
 }
 
 @keyframes card-zoom-card-in {
