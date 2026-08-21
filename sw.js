@@ -1,4 +1,4 @@
-const CACHE_NAME = 'astro-julia-shell-v4';
+const CACHE_NAME = 'astro-julia-shell-v5';
 const cardNumbers = Array.from({ length: 78 }, (_, index) => String(index + 1).padStart(2, '0'));
 const precache = [
   './',

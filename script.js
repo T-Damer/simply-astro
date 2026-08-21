@@ -321,7 +321,10 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     modalAssetsPromise = backgrounds.then(([loadedBackgrounds, zoomLoaded]) => {
       const [artLoaded, backsLoaded] = loadedBackgrounds;
       if (artLoaded && cardSurface instanceof HTMLElement) cardSurface.classList.add('is-art-loaded');
-      if (zoomLoaded && cardZoom instanceof HTMLElement) cardZoom.classList.add('is-background-loaded');
+      if (zoomLoaded && cardZoom instanceof HTMLElement) {
+        cardZoom.style.setProperty('--zoom-bg-image', `url("${cardAssetPath}zoom-bg.webp")`);
+        cardZoom.classList.add('is-background-loaded');
+      }
 
       if (backsLoaded) {
         cardModal.querySelectorAll('.oracle-card__back').forEach((back) => back.classList.add('is-loaded'));
