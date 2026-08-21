@@ -880,6 +880,10 @@ a {
     drop-shadow(0 2px 6px rgba(24, 23, 27, .28));
 }
 
+.card-modal__timer[hidden] {
+  display: none !important;
+}
+
 .card-modal__timer time {
   color: #f4f0e8;
   font-family: var(--font-serif);

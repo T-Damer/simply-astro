@@ -1,4 +1,4 @@
-const CACHE_NAME = 'astro-julia-shell-v6';
+const CACHE_NAME = 'astro-julia-shell-v7';
 const precache = [
   './',
   './index.html',
