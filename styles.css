@@ -105,7 +105,7 @@ a {
   isolation: isolate;
   background:
     linear-gradient(180deg, rgba(20, 17, 15, .42), rgba(20, 17, 15, .68)),
-    url("assets/images/IMG_7419.JPG") center / cover no-repeat;
+    url("assets/images/IMG_7419.webp") center / cover no-repeat;
 }
 
 .hero__content {
@@ -220,7 +220,7 @@ a {
   color: #fff;
   background:
     linear-gradient(180deg, rgba(20, 17, 15, .3), rgba(20, 17, 15, .68)),
-    url("assets/images/IMGL6008.jpg") center 22% / cover no-repeat;
+    url("assets/images/IMGL6008.webp") center 22% / cover no-repeat;
 }
 
 .about__card {
@@ -454,6 +454,7 @@ a {
 
 .service-card--contact .service-card__title {
   max-width: 270px;
+  margin-top: 28px;
   font-size: clamp(42px, 5vw, 60px);
 }
 
@@ -831,13 +832,6 @@ a {
   flex: 0 0 auto;
 }
 
-.card-modal__header > .card-modal__eyebrow {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  padding-top: 4px;
-  text-align: center;
-}
-
 .card-modal__close {
   display: grid;
   position: absolute;
@@ -921,6 +915,10 @@ a {
   animation: card-sparkle 2.4s ease-in-out infinite;
 }
 
+.card-modal__eyebrow--status {
+  margin: 24px auto 5px;
+}
+
 .card-modal__title {
   max-width: 700px;
   margin: 0 auto;
@@ -943,7 +941,7 @@ a {
   height: auto;
   min-height: 150px;
   margin: 14px auto 0;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
@@ -968,14 +966,12 @@ a {
   z-index: 1;
 }
 
-.oracle-card:nth-child(1) { --offset: clamp(-240px, -27vw, -170px); --angle: -22deg; z-index: 1; }
-.oracle-card:nth-child(2) { --offset: clamp(-175px, -19vw, -125px); --angle: -16deg; z-index: 2; }
-.oracle-card:nth-child(3) { --offset: clamp(-110px, -12vw, -75px); --angle: -9deg; z-index: 3; }
-.oracle-card:nth-child(4) { --offset: clamp(-42px, -4vw, -26px); --angle: -3deg; z-index: 4; }
-.oracle-card:nth-child(5) { --offset: clamp(42px, 4vw, 26px); --angle: 3deg; z-index: 5; }
-.oracle-card:nth-child(6) { --offset: clamp(110px, 12vw, 75px); --angle: 9deg; z-index: 6; }
-.oracle-card:nth-child(7) { --offset: clamp(175px, 19vw, 125px); --angle: 16deg; z-index: 7; }
-.oracle-card:nth-child(8) { --offset: clamp(240px, 27vw, 170px); --angle: 22deg; z-index: 8; }
+.oracle-card:nth-child(1) { --offset: clamp(-180px, -20vw, -130px); --angle: -18deg; z-index: 1; }
+.oracle-card:nth-child(2) { --offset: clamp(-112px, -12vw, -78px); --angle: -11deg; z-index: 2; }
+.oracle-card:nth-child(3) { --offset: clamp(-38px, -4vw, -26px); --angle: -4deg; z-index: 3; }
+.oracle-card:nth-child(4) { --offset: clamp(38px, 4vw, 26px); --angle: 4deg; z-index: 4; }
+.oracle-card:nth-child(5) { --offset: clamp(112px, 12vw, 78px); --angle: 11deg; z-index: 5; }
+.oracle-card:nth-child(6) { --offset: clamp(180px, 20vw, 130px); --angle: 18deg; z-index: 6; }
 
 .oracle-card:hover:not(:disabled),
 .oracle-card:focus-visible {
@@ -1107,7 +1103,7 @@ a {
 .card-modal__status {
   max-width: 540px;
   min-height: 22px;
-  margin: -2px auto 0;
+  margin: 0 auto;
   color: var(--color-accent-dark);
   font-size: 13px;
   font-weight: 700;
@@ -1442,17 +1438,15 @@ a {
 
   .oracle-card {
     top: 38%;
-    width: clamp(70px, 19vw, 94px);
+    width: clamp(64px, 17vw, 84px);
   }
 
-  .oracle-card:nth-child(1) { --offset: -126px; --angle: -27deg; }
-  .oracle-card:nth-child(2) { --offset: -90px; --angle: -19deg; }
-  .oracle-card:nth-child(3) { --offset: -54px; --angle: -10deg; }
-  .oracle-card:nth-child(4) { --offset: -18px; --angle: -3deg; }
-  .oracle-card:nth-child(5) { --offset: 18px; --angle: 3deg; }
-  .oracle-card:nth-child(6) { --offset: 54px; --angle: 10deg; }
-  .oracle-card:nth-child(7) { --offset: 90px; --angle: 19deg; }
-  .oracle-card:nth-child(8) { --offset: 126px; --angle: 27deg; }
+  .oracle-card:nth-child(1) { --offset: -68px; --angle: -23deg; }
+  .oracle-card:nth-child(2) { --offset: -41px; --angle: -14deg; }
+  .oracle-card:nth-child(3) { --offset: -14px; --angle: -5deg; }
+  .oracle-card:nth-child(4) { --offset: 14px; --angle: 5deg; }
+  .oracle-card:nth-child(5) { --offset: 41px; --angle: 14deg; }
+  .oracle-card:nth-child(6) { --offset: 68px; --angle: 23deg; }
 
   .oracle-card.is-selected {
     top: 72%;

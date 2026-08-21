@@ -1,5 +1,4 @@
-const CACHE_NAME = 'astro-julia-shell-v5';
-const cardNumbers = Array.from({ length: 78 }, (_, index) => String(index + 1).padStart(2, '0'));
+const CACHE_NAME = 'astro-julia-shell-v6';
 const precache = [
   './',
   './index.html',
@@ -12,15 +11,8 @@ const precache = [
   './assets/logo-circle-light.png',
   './assets/logo-circle-dark.png',
   './assets/og-image.png',
-  './assets/images/IMGL6008.jpg',
-  './assets/images/IMGL5986_.jpg',
-  './assets/images/IMGL5985_.jpg',
-  './assets/images/IMG_7419.JPG',
-  './cards/assets/img/bg-low.webp',
-  './cards/assets/img/bg2-low.webp',
-  './cards/assets/img/zoom-bg-low.webp',
-  './cards/assets/img/zoom-bg.webp',
-  ...cardNumbers.map((number) => `./cards/assets/img/Image${number}-low.webp`)
+  './assets/images/IMG_7419.webp',
+  './assets/images/IMGL6008.webp'
 ];
 
 self.addEventListener('install', (event) => {

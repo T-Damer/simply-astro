@@ -20,6 +20,8 @@
   <link rel="icon" type="image/png" href="assets/favicon-dark.png" media="(prefers-color-scheme: dark)">
   <link rel="icon" type="image/png" href="assets/favicon-dark.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preload" as="image" href="assets/images/IMG_7419.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/images/IMGL6008.webp">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="page is-booting">
@@ -104,7 +106,7 @@
       <div class="services__track" id="services-track" role="list">
         <article class="service-card" role="listitem">
           <div class="service-card__number">01</div>
-          <img class="service-card__image" src="assets/images/IMGL6008.jpg" alt="Анализ карты под запрос">
+          <img class="service-card__image" src="assets/images/IMGL6008.webp" loading="lazy" alt="Анализ карты под запрос">
           <div class="service-card__body">
             <h3 class="service-card__title">Анализ карты под запрос</h3>
             <p class="service-card__description">Разбор главного вопроса, с которым вы приходите.</p>
@@ -115,7 +117,7 @@
 
         <article class="service-card" role="listitem">
           <div class="service-card__number">02</div>
-          <img class="service-card__image" src="assets/images/IMGL5986_.jpg" alt="Годовой прогноз">
+          <img class="service-card__image" src="assets/images/IMGL5986_.webp" loading="lazy" alt="Годовой прогноз">
           <div class="service-card__body">
             <h3 class="service-card__title">Годовой прогноз</h3>
             <p class="service-card__description">
@@ -129,7 +131,7 @@
 
         <article class="service-card" role="listitem">
           <div class="service-card__number">03</div>
-          <img class="service-card__image" src="assets/images/IMGL5985_.jpg" alt="Синастрии — астрология отношений">
+          <img class="service-card__image" src="assets/images/IMGL5985_.webp" loading="lazy" alt="Синастрии — астрология отношений">
           <div class="service-card__body">
             <h3 class="service-card__title">Синастрии</h3>
             <p class="service-card__description">
@@ -144,7 +146,6 @@
         <article class="service-card service-card--contact" role="listitem">
           <div class="service-card__number">04</div>
           <div class="service-card__body">
-            <p class="service-card__eyebrow">Не нашли свой вариант?</p>
             <h3 class="service-card__title">Напишите мне</h3>
             <p class="service-card__description">Помогу определиться с форматом и отвечу на вопросы.</p>
             <a class="button button--light service-card__link" href="#contacts">Связаться</a>
@@ -208,7 +209,6 @@
 
       <header class="card-modal__header">
         <button class="card-modal__close" type="button" data-close-card-modal aria-label="Закрыть карту дня">×</button>
-        <p class="card-modal__eyebrow">КАРТА ДНЯ <span aria-hidden="true">✦</span></p>
         <div class="card-modal__timer" aria-label="Время до следующего выбора">
           <span>следующий выбор через</span>
           <time id="card-timer">00:00:00</time>
@@ -236,14 +236,9 @@
           <button class="oracle-card" type="button" role="listitem" data-card-slot="5" aria-label="Выбрать карту 6">
             <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
           </button>
-          <button class="oracle-card" type="button" role="listitem" data-card-slot="6" aria-label="Выбрать карту 7">
-            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
-          </button>
-          <button class="oracle-card" type="button" role="listitem" data-card-slot="7" aria-label="Выбрать карту 8">
-            <span class="oracle-card__tilt" aria-hidden="true"><span class="oracle-card__inner"><span class="oracle-card__back"></span><span class="oracle-card__face"></span></span></span>
-          </button>
         </div>
 
+        <p class="card-modal__eyebrow card-modal__eyebrow--status">КАРТА ДНЯ <span aria-hidden="true">✦</span></p>
         <p class="card-modal__status" id="card-status" aria-live="polite">Выбери одну карту на сегодня.</p>
 
         <section class="card-history" aria-labelledby="card-history-title">

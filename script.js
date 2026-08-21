@@ -1,8 +1,6 @@
 const cardAssetPath = 'cards/assets/img/';
-const cardNumbers = Array.from({ length: 78 }, (_, index) => String(index + 1).padStart(2, '0'));
+const availableCardNumbers = ['03', '17', '28', '41', '56', '72'];
 const tiltAssetSource = 'https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js';
-let modalPriority = false;
-let siteAssetsLoaded = false;
 let tiltAssetPromise = null;
 const pageReady = prepareServiceWorker().catch(() => undefined);
 
@@ -73,39 +71,6 @@ async function prepareServiceWorker() {
   ]);
 }
 
-function preloadCardAssets() {
-  if (!/^https?:$/.test(location.protocol) || modalPriority) return;
-
-  const cardImages = cardNumbers.flatMap((number) => [
-    `${cardAssetPath}Image${number}-low.webp`,
-    `${cardAssetPath}Image${number}.webp`
-  ]);
-  const assets = [
-    `${cardAssetPath}bg-low.webp`,
-    `${cardAssetPath}bg.webp`,
-    `${cardAssetPath}bg2-low.webp`,
-    `${cardAssetPath}bg2.webp`,
-    `${cardAssetPath}zoom-bg-low.webp`,
-    `${cardAssetPath}zoom-bg.webp`,
-    ...cardImages
-  ];
-
-  return Promise.all([
-    loadTiltAsset(),
-    ...assets.map((source) => fetch(source, { cache: 'force-cache' }).catch(() => undefined))
-  ]);
-}
-
-window.addEventListener('load', () => {
-  siteAssetsLoaded = true;
-  pageReady.finally(() => {
-    const schedule = window.requestIdleCallback
-      ? (callback) => window.requestIdleCallback(callback, { timeout: 1500 })
-      : (callback) => window.setTimeout(callback, 0);
-    schedule(() => preloadCardAssets());
-  });
-}, { once: true });
-
 pageReady.finally(() => document.body.classList.remove('is-booting'));
 
 const track = document.querySelector('.services__track');
@@ -150,6 +115,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   const cardHistory = cardModal.querySelector('[data-card-history]');
   const cardHistoryCount = cardModal.querySelector('#card-history-count');
   const cardClose = cardModal.querySelector('[data-close-card-modal]');
+  const cardTimerBlock = cardModal.querySelector('.card-modal__timer');
   const cardSurface = cardModal.querySelector('.card-modal__surface');
   const cardLoading = cardModal.querySelector('[data-card-modal-loading]');
   const cardTitle = cardModal.querySelector('.card-modal__title');
@@ -161,12 +127,14 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   const historyStorageKey = 'astro-card-history';
   let memoryHistory = [];
   let modalAssetsPromise = null;
+  const imagePromises = new Map();
   let tiltStarted = false;
   let activeDay = getDayKey();
   let timerId = 0;
   let closeId = 0;
   let zoomSourceElement = null;
   let floatFrameId = 0;
+  let floatState = null;
 
   function getDayKey(date = new Date()) {
     return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
@@ -180,9 +148,10 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     if (parsedDate.getFullYear() !== year || parsedDate.getMonth() !== month - 1 || parsedDate.getDate() !== day) return null;
 
     const slot = Number(selection.slot);
+    const visibleSlot = Number.isInteger(slot) && slot >= 0 && slot < 8 ? slot % cardButtons.length : -1;
     const card = Number(selection.card);
-    return Number.isInteger(slot) && slot >= 0 && slot < cardButtons.length && Number.isInteger(card) && card >= 1 && card <= 78
-      ? { date: dateKey, slot, card: String(card).padStart(2, '0') }
+    return visibleSlot >= 0 && Number.isInteger(card) && card >= 1 && card <= 78
+      ? { date: dateKey, slot: visibleSlot, card: String(card).padStart(2, '0') }
       : null;
   }
 
@@ -238,13 +207,24 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   }
 
   function loadImage(source) {
-    return new Promise((resolve) => {
+    if (imagePromises.has(source)) return imagePromises.get(source);
+
+    const promise = new Promise((resolve) => {
       const image = new Image();
       image.decoding = 'async';
-      image.onload = () => resolve(true);
+      image.onload = () => {
+        if (typeof image.decode !== 'function') {
+          resolve(true);
+          return;
+        }
+        image.decode().then(() => resolve(true), () => resolve(true));
+      };
       image.onerror = () => resolve(false);
       image.src = source;
     });
+
+    imagePromises.set(source, promise);
+    return promise;
   }
 
   function setProgressiveBackground(element, lowSource, highSource) {
@@ -254,33 +234,62 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     });
   }
 
-  function stopCardFloat() {
-    window.cancelAnimationFrame(floatFrameId);
-    floatFrameId = 0;
+  function preloadAvailableCardAssets() {
+    return Promise.all(availableCardNumbers.flatMap((number) => [
+      loadImage(`${cardAssetPath}Image${number}-low.webp`),
+      loadImage(`${cardAssetPath}Image${number}.webp`)
+    ]));
   }
 
-  function startCardFloat(card) {
-    stopCardFloat();
+  function stopCardFloat(preserve = false) {
+    window.cancelAnimationFrame(floatFrameId);
+    floatFrameId = 0;
+    if (preserve && floatState) {
+      floatState.pausedAt = performance.now();
+    } else if (!preserve) {
+      floatState = null;
+    }
+  }
+
+  function startCardFloat(card, resume = false) {
+    if (resume) {
+      window.cancelAnimationFrame(floatFrameId);
+      floatFrameId = 0;
+    } else {
+      stopCardFloat();
+    }
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const selectedScale = Number.parseFloat(getComputedStyle(card).getPropertyValue('--selected-scale')) || 1.45;
-    const duration = 8100 + Math.random() * 4800;
-    const phase = Math.random() * Math.PI * 2;
-    const xAmplitude = 5 + Math.random() * 7;
-    const yAmplitude = (12 + Math.random() * 9) * .8;
-    const yPhase = (Math.random() - .5) * .2;
-    const rotationAmplitude = (1.4 + Math.random() * 1.8) * (Math.random() > .5 ? 1 : -1);
-    const scaleAmplitude = .025 + Math.random() * .025;
-    const startedAt = performance.now();
+    const now = performance.now();
+    if (resume && floatState?.card === card && floatState.pausedAt) {
+      floatState.startedAt += now - floatState.pausedAt;
+      floatState.pausedAt = 0;
+    } else {
+      floatState = {
+        card,
+        selectedScale: Number.parseFloat(getComputedStyle(card).getPropertyValue('--selected-scale')) || 1.45,
+        duration: 8100 + Math.random() * 4800,
+        phase: Math.random() * Math.PI * 2,
+        xAmplitude: 5 + Math.random() * 7,
+        yAmplitude: (12 + Math.random() * 9) * .8,
+        yPhase: (Math.random() - .5) * .2,
+        rotationAmplitude: (1.4 + Math.random() * 1.8) * (Math.random() > .5 ? 1 : -1),
+        scaleAmplitude: .025 + Math.random() * .025,
+        startedAt: now,
+        pausedAt: 0
+      };
+    }
+
+    const state = floatState;
 
     const animate = (now) => {
-      if (!card.classList.contains('is-selected')) return;
+      if (state !== floatState || !card.classList.contains('is-selected')) return;
 
-      const angle = ((now - startedAt) / duration) * Math.PI * 2 + phase;
-      const x = xAmplitude * Math.sin(angle);
-      const y = yAmplitude * Math.sin((angle * 2) + yPhase);
-      const rotation = rotationAmplitude * Math.sin(angle + yPhase);
-      const scale = selectedScale + scaleAmplitude * ((Math.sin((angle * 2) + yPhase) + 1) / 2);
+      const angle = ((now - state.startedAt) / state.duration) * Math.PI * 2 + state.phase;
+      const x = state.xAmplitude * Math.sin(angle);
+      const y = state.yAmplitude * Math.sin((angle * 2) + state.yPhase);
+      const rotation = state.rotationAmplitude * Math.sin(angle + state.yPhase);
+      const scale = state.selectedScale + state.scaleAmplitude * ((Math.sin((angle * 2) + state.yPhase) + 1) / 2);
 
       card.style.transform = `translate(calc(-50% + ${x.toFixed(2)}px), calc(-50% + var(--lift) + ${y.toFixed(2)}px)) scale(${scale.toFixed(4)}) rotate(${rotation.toFixed(2)}deg)`;
       floatFrameId = window.requestAnimationFrame(animate);
@@ -309,17 +318,12 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   function prepareModalAssets() {
     if (modalAssetsPromise) return modalAssetsPromise;
 
-    const backgrounds = Promise.all([
-      Promise.all([
-        loadImage(`${cardAssetPath}bg2.webp`),
-        loadImage(`${cardAssetPath}bg.webp`)
-      ]),
+    const enhancements = Promise.all([
+      loadImage(`${cardAssetPath}bg2.webp`),
+      loadImage(`${cardAssetPath}bg.webp`),
       loadImage(`${cardAssetPath}zoom-bg.webp`),
-      loadTiltAsset()
-    ]);
-
-    modalAssetsPromise = backgrounds.then(([loadedBackgrounds, zoomLoaded]) => {
-      const [artLoaded, backsLoaded] = loadedBackgrounds;
+      preloadAvailableCardAssets()
+    ]).then(([artLoaded, backsLoaded, zoomLoaded]) => {
       if (artLoaded && cardSurface instanceof HTMLElement) cardSurface.classList.add('is-art-loaded');
       if (zoomLoaded && cardZoom instanceof HTMLElement) {
         cardZoom.style.setProperty('--zoom-bg-image', `url("${cardAssetPath}zoom-bg.webp")`);
@@ -329,12 +333,25 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
       if (backsLoaded) {
         cardModal.querySelectorAll('.oracle-card__back').forEach((back) => back.classList.add('is-loaded'));
       }
+    }).catch(() => undefined);
 
-      initializeCardTilt();
-    });
+    const startTilt = () => loadTiltAsset().then(() => initializeCardTilt()).catch(() => undefined);
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(startTilt, { timeout: 2500 });
+    } else {
+      window.setTimeout(startTilt, 0);
+    }
 
+    modalAssetsPromise = Promise.resolve();
     return modalAssetsPromise;
   }
+
+  window.addEventListener('load', () => {
+    const schedule = window.requestIdleCallback
+      ? (callback) => window.requestIdleCallback(callback, { timeout: 1500 })
+      : (callback) => window.setTimeout(callback, 0);
+    schedule(() => prepareModalAssets());
+  }, { once: true });
 
   function setModalLoading(isLoading) {
     if (cardLoading instanceof HTMLElement) cardLoading.hidden = !isLoading;
@@ -346,7 +363,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
 
     const pendingSource = sourceElement instanceof HTMLElement ? sourceElement : null;
     if (pendingSource) pendingSource.classList.add('is-zoom-source-hidden');
-    stopCardFloat();
+    stopCardFloat(true);
 
     const lowSource = `${cardAssetPath}Image${selection.card}-low.webp`;
     const highSource = `${cardAssetPath}Image${selection.card}.webp`;
@@ -430,7 +447,9 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
       if (!keepSourceName) {
         zoomSourceElement = null;
         const selectedCard = cardButtons.find((button) => button.classList.contains('is-selected'));
-        if (wasZoomOpen && selectedCard instanceof HTMLButtonElement) startCardFloat(selectedCard);
+        if (wasZoomOpen && selectedCard instanceof HTMLButtonElement && !cardModal.classList.contains('is-closing')) {
+          startCardFloat(selectedCard, true);
+        }
       }
       cardModal.classList.remove('is-zoom-open');
       cardZoom.classList.remove('is-open');
@@ -509,6 +528,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
       cardTitle.classList.toggle('is-hidden', Boolean(selection));
       cardTitle.setAttribute('aria-hidden', String(Boolean(selection)));
     }
+    if (cardTimerBlock instanceof HTMLElement) cardTimerBlock.hidden = !selection;
 
     if (!selection) {
       if (cardStatus instanceof HTMLElement) cardStatus.textContent = 'Выбери одну карту на сегодня.';
@@ -574,7 +594,6 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   function openCardModal(event) {
     event.preventDefault();
     window.clearTimeout(closeId);
-    modalPriority = true;
     activeDay = getDayKey();
     const history = readHistory();
     renderHistory(history);
@@ -616,7 +635,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
       const selection = {
         date: getDayKey(),
         slot: Number(button.dataset.cardSlot),
-        card: String(Math.floor(Math.random() * 78) + 1).padStart(2, '0')
+        card: availableCardNumbers[Math.floor(Math.random() * availableCardNumbers.length)]
       };
 
       renderHistory(saveSelection(selection));
@@ -646,9 +665,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   });
   cardModal.addEventListener('close', () => {
     window.clearTimeout(timerId);
-    modalPriority = false;
     document.body.classList.remove('is-card-modal-open');
     cardModal.classList.remove('is-closing');
-    if (siteAssetsLoaded) preloadCardAssets();
   });
 }
