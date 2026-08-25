@@ -1,9 +1,11 @@
-const CACHE_NAME = 'astro-julia-shell-v7';
+const CACHE_NAME = 'astro-julia-shell-v9';
+const CARD_CACHE_NAME = 'astro-julia-cards-v1';
 const precache = [
   './',
   './index.html',
   './styles.css',
   './script.js',
+  './cards/assets/img/manifest.js',
   './assets/favicon-light.png',
   './assets/favicon-dark.png',
   './assets/favicon.png',
@@ -23,7 +25,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(keys
-        .filter((key) => key.startsWith('astro-julia-') && key !== CACHE_NAME)
+        .filter((key) => key.startsWith('astro-julia-shell-') && key !== CACHE_NAME)
         .map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
@@ -33,9 +35,9 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
-async function cacheResponse(request, response) {
+async function cacheResponse(request, response, cacheName = CACHE_NAME) {
   if (response.ok) {
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(cacheName);
     await cache.put(request, response.clone());
   }
   return response;
@@ -49,12 +51,13 @@ async function networkFirst(request) {
   }
 }
 
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
+async function cacheFirst(request, cacheName = CACHE_NAME) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
   if (cached) return cached;
 
   try {
-    return await cacheResponse(request, await fetch(request));
+    return await cacheResponse(request, await fetch(request), cacheName);
   } catch {
     return Response.error();
   }
@@ -64,6 +67,8 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
 
+  const url = new URL(request.url);
   const updateBeforeRender = request.mode === 'navigate' || ['script', 'style'].includes(request.destination);
-  event.respondWith(updateBeforeRender ? networkFirst(request) : cacheFirst(request));
+  const cacheName = url.pathname.includes('/cards/assets/img/') ? CARD_CACHE_NAME : CACHE_NAME;
+  event.respondWith(updateBeforeRender ? networkFirst(request) : cacheFirst(request, cacheName));
 });

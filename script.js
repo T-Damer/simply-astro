@@ -1,5 +1,5 @@
 const cardAssetPath = 'cards/assets/img/';
-const availableCardNumbers = ['03', '17', '28', '41', '56', '72'];
+const cardNumbers = Array.isArray(window.astroCardNumbers) ? window.astroCardNumbers : [];
 const tiltAssetSource = 'https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js';
 let tiltAssetPromise = null;
 const pageReady = prepareServiceWorker().catch(() => undefined);
@@ -149,9 +149,9 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
 
     const slot = Number(selection.slot);
     const visibleSlot = Number.isInteger(slot) && slot >= 0 && slot < 8 ? slot % cardButtons.length : -1;
-    const card = Number(selection.card);
-    return visibleSlot >= 0 && Number.isInteger(card) && card >= 1 && card <= 78
-      ? { date: dateKey, slot: visibleSlot, card: String(card).padStart(2, '0') }
+    const card = String(selection.card).padStart(2, '0');
+    return visibleSlot >= 0 && cardNumbers.includes(card)
+      ? { date: dateKey, slot: visibleSlot, card }
       : null;
   }
 
@@ -234,11 +234,21 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     });
   }
 
-  function preloadAvailableCardAssets() {
-    return Promise.all(availableCardNumbers.flatMap((number) => [
+  function preloadCardAssets(numbers) {
+    return Promise.all([...new Set(numbers)].flatMap((number) => [
       loadImage(`${cardAssetPath}Image${number}-low.webp`),
       loadImage(`${cardAssetPath}Image${number}.webp`)
     ]));
+  }
+
+  function preloadHistoryCardAssets(history) {
+    return preloadCardAssets(history.slice(0, 6).map(({ card }) => card));
+  }
+
+  function getRandomCardNumber(history) {
+    const recentCards = new Set(history.slice(0, 6).map(({ card }) => card));
+    const candidates = cardNumbers.filter((number) => !recentCards.has(number));
+    return candidates[Math.floor(Math.random() * candidates.length)];
   }
 
   function stopCardFloat(preserve = false) {
@@ -318,11 +328,12 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
   function prepareModalAssets() {
     if (modalAssetsPromise) return modalAssetsPromise;
 
+    const history = readHistory();
     const enhancements = Promise.all([
       loadImage(`${cardAssetPath}bg2.webp`),
       loadImage(`${cardAssetPath}bg.webp`),
       loadImage(`${cardAssetPath}zoom-bg.webp`),
-      preloadAvailableCardAssets()
+      preloadHistoryCardAssets(history)
     ]).then(([artLoaded, backsLoaded, zoomLoaded]) => {
       if (artLoaded && cardSurface instanceof HTMLElement) cardSurface.classList.add('is-art-loaded');
       if (zoomLoaded && cardZoom instanceof HTMLElement) {
@@ -596,6 +607,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
     window.clearTimeout(closeId);
     activeDay = getDayKey();
     const history = readHistory();
+    preloadHistoryCardAssets(history);
     renderHistory(history);
     renderSelection(history.find((selection) => selection.date === activeDay) || null);
     cardModal.showModal();
@@ -635,7 +647,7 @@ if (cardModal instanceof HTMLDialogElement && cardOpeners.length) {
       const selection = {
         date: getDayKey(),
         slot: Number(button.dataset.cardSlot),
-        card: availableCardNumbers[Math.floor(Math.random() * availableCardNumbers.length)]
+        card: getRandomCardNumber(history)
       };
 
       renderHistory(saveSelection(selection));
